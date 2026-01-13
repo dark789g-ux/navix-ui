@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>药店智能决策 - 运营指挥舱</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tech-bg': '#0B0F19',
+                        'tech-card': '#151B2B',
+                        'neon-blue': '#00F0FF',
+                        'neon-purple': '#BC13FE',
+                        'neon-green': '#0AFF99',
+                        'neon-red': '#FF2A6D',
+                    },
+                    boxShadow: {
+                        'neon-blue': '0 0 10px rgba(0, 240, 255, 0.5)',
+                        'neon-purple': '0 0 10px rgba(188, 19, 254, 0.5)',
+                    },
+                    fontFamily: {
+                        'sans': ['Microsoft YaHei', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0B0F19;
+            color: #e2e8f0;
+            font-family: 'Microsoft YaHei', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Glassmorphism utilities */
+        .glass-panel {
+            background: rgba(21, 27, 43, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .tech-border-b {
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 2px;
+        }
+        /* Chart container fix */
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="pb-20">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 glass-panel border-b border-white/5 px-4 py-3 flex justify-between items-center">
+        <div>
+            <h1 class="text-lg font-bold text-white tracking-wide">
+                <i class="fa-solid fa-chart-network text-neon-blue mr-2"></i>智能决策·指挥舱
+            </h1>
+            <p class="text-xs text-slate-400">上次更新: 刚刚</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 relative">
+                <i class="fa-solid fa-bell text-slate-300 text-sm"></i>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-neon-red rounded-full animate-pulse"></span>
+            </button>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-neon-blue to-neon-purple p-0.5">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" class="rounded-full bg-slate-900" alt="Admin">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="dashboard-view" class="mt-20 px-4 space-y-6">
+
+        <!-- 数据日期标识（固定展示昨日数据，不提供时间范围切换） -->
+        <div class="flex items-center justify-between bg-slate-800/50 px-3 py-2 rounded-lg border border-white/5">
+            <div class="flex items-center space-x-2">
+                <i class="fa-regular fa-calendar text-neon-blue text-sm"></i>
+                <span class="text-xs text-slate-400">数据日期：</span>
+                <span class="text-xs text-white font-medium">2026-01-11 (昨日)</span>
+            </div>
+            <span class="text-[10px] text-slate-500 bg-slate-700/50 px-2 py-0.5 rounded">T+1 数据</span>
+        </div>
+
+        <!-- Hero Stats Cards -->
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Stat 1: 昨日接待客流 -->
+            <div onclick="showMetricDetails('客流量', '1,245', '+120', '+10.6%', true)" class="glass-panel p-4 rounded-xl relative overflow-hidden group cursor-pointer active:scale-95 transition-transform">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-blue/20 rounded-full blur-xl group-hover:bg-neon-blue/30 transition-all"></div>
+                <div class="flex items-start justify-between mb-2">
+                    <span class="text-slate-400 text-xs">昨日接待客流</span>
+                    <i class="fa-solid fa-users text-neon-blue"></i>
+                </div>
+                <div class="text-2xl font-bold text-white mb-1">1,245</div>
+                <div class="text-xs text-neon-red flex items-center">
+                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> +120 <span class="ml-1 text-slate-500">较前日</span>
+                </div>
+            </div>
+            
+            <!-- Stat 2: 昨日综合合规率 -->
+            <div onclick="showMetricDetails('合规率', '88.4%', '-2.1%', '-2.3%', false)" class="glass-panel p-4 rounded-xl relative overflow-hidden group cursor-pointer active:scale-95 transition-transform">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-purple/20 rounded-full blur-xl group-hover:bg-neon-purple/30 transition-all"></div>
+                <div class="flex items-start justify-between mb-2">
+                    <span class="text-slate-400 text-xs">昨日合规率</span>
+                    <i class="fa-solid fa-check-double text-neon-purple"></i>
+                </div>
+                <div class="text-2xl font-bold text-white mb-1">88.4%</div>
+                <div class="text-xs text-neon-green flex items-center">
+                    <i class="fa-solid fa-arrow-trend-down mr-1"></i> -2.1% <span class="ml-1 text-slate-500">较前日</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Intelligence Tab Panel -->
+        <section class="flex flex-col">
+            <!-- Tab Headers -->
+            <div class="flex border-b border-white/10 mb-4 bg-slate-800/30 rounded-t-xl overflow-hidden">
+                <button onclick="switchHomeTab('hotwords')" id="tab-home-hotwords" class="flex-1 py-3 text-center text-xs font-bold text-neon-blue border-b-2 border-neon-blue bg-white/5 transition-all">
+                    昨日热词
+                </button>
+                <button onclick="switchHomeTab('products')" id="tab-home-products" class="flex-1 py-3 text-center text-xs font-bold text-slate-400 hover:text-white border-b-2 border-transparent transition-all">
+                    商品洞察
+                </button>
+                <button onclick="switchHomeTab('sentiment')" id="tab-home-sentiment" class="flex-1 py-3 text-center text-xs font-bold text-slate-400 hover:text-white border-b-2 border-transparent transition-all">
+                    舆情洞察
+                </button>
+            </div>
+
+            <!-- Tab Content Container -->
+            <div class="glass-panel rounded-b-xl p-4 border border-white/5 min-h-[250px]">
+                
+                <!-- Tab 1: Hot Words -->
+                <div id="panel-home-hotwords" class="animate-fade-in">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] text-slate-500">顾客提及 Top 5</span>
+                        <a href="#" class="text-[10px] text-neon-blue">查看更多 ></a>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- Item 1 -->
+                        <div onclick="showKeywordDetails('感冒', '症状', '324', '12', true)" class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded transition-colors active:scale-95">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-neon-red font-bold font-mono text-sm w-4 text-center">1</span>
+                                <div>
+                                    <div class="text-sm text-white font-medium flex items-center">
+                                        感冒
+                                        <span class="ml-2 text-[10px] bg-slate-700 text-slate-300 px-1.5 rounded">症状</span>
+                                    </div>
+                                    <div class="w-24 bg-slate-800 h-1 rounded-full mt-1.5 overflow-hidden">
+                                        <div class="bg-neon-red h-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-white font-bold">324次</div>
+                                <div class="text-[10px] text-neon-red">↑ 12%</div>
+                            </div>
+                        </div>
+                        <!-- Item 2 -->
+                        <div onclick="showKeywordDetails('连花清瘟', '药品', '210', '-2', false)" class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded transition-colors active:scale-95">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-neon-red font-bold font-mono text-sm w-4 text-center">2</span>
+                                <div>
+                                    <div class="text-sm text-white font-medium flex items-center">
+                                        连花清瘟
+                                        <span class="ml-2 text-[10px] bg-neon-blue/20 text-neon-blue px-1.5 rounded">药品</span>
+                                    </div>
+                                    <div class="w-24 bg-slate-800 h-1 rounded-full mt-1.5 overflow-hidden">
+                                        <div class="bg-neon-red h-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-white font-bold">210次</div>
+                                <div class="text-[10px] text-slate-500">- 2%</div>
+                            </div>
+                        </div>
+                        <!-- Item 3 -->
+                        <div onclick="showKeywordDetails('布洛芬', '药品', '185', '5', true)" class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded transition-colors active:scale-95">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-yellow-500 font-bold font-mono text-sm w-4 text-center">3</span>
+                                <div>
+                                    <div class="text-sm text-white font-medium flex items-center">
+                                        布洛芬
+                                        <span class="ml-2 text-[10px] bg-neon-blue/20 text-neon-blue px-1.5 rounded">药品</span>
+                                    </div>
+                                    <div class="w-24 bg-slate-800 h-1 rounded-full mt-1.5 overflow-hidden">
+                                        <div class="bg-yellow-500 h-full" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-white font-bold">185次</div>
+                                <div class="text-[10px] text-neon-red">↑ 5%</div>
+                            </div>
+                        </div>
+                        <!-- Item 4 -->
+                        <div class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-slate-500 font-bold font-mono text-sm w-4 text-center">4</span>
+                                <div>
+                                    <div class="text-sm text-white font-medium flex items-center">
+                                        咳嗽
+                                        <span class="ml-2 text-[10px] bg-slate-700 text-slate-300 px-1.5 rounded">症状</span>
+                                    </div>
+                                    <div class="w-24 bg-slate-800 h-1 rounded-full mt-1.5 overflow-hidden">
+                                        <div class="bg-slate-500 h-full" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-white font-bold">150次</div>
+                                <div class="text-[10px] text-slate-500">-</div>
+                            </div>
+                        </div>
+                        <!-- Item 5 -->
+                        <div class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-slate-500 font-bold font-mono text-sm w-4 text-center">5</span>
+                                <div>
+                                    <div class="text-sm text-white font-medium flex items-center">
+                                        会员日
+                                        <span class="ml-2 text-[10px] bg-neon-purple/20 text-neon-purple px-1.5 rounded">活动</span>
+                                    </div>
+                                    <div class="w-24 bg-slate-800 h-1 rounded-full mt-1.5 overflow-hidden">
+                                        <div class="bg-slate-500 h-full" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-white font-bold">98次</div>
+                                <div class="text-[10px] text-neon-green">↓ 8%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Product Insights -->
+                <div id="panel-home-products" class="hidden animate-fade-in">
+                    <div class="grid grid-cols-2 gap-4 h-full">
+                        <!-- Out of Stock -->
+                        <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                            <div class="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
+                                <h3 class="text-xs font-bold text-neon-red flex items-center">
+                                    <i class="fa-solid fa-box-open mr-1.5"></i>缺货预警
+                                </h3>
+                                <span class="text-[10px] text-slate-500">Top 3</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-200">儿童退热贴</span>
+                                        <span class="text-neon-red font-bold">42次</span>
+                                    </div>
+                                    <div class="w-full bg-slate-700 h-1 rounded-full">
+                                        <div class="bg-neon-red h-full rounded-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-200">N95口罩</span>
+                                        <span class="text-neon-red font-bold">28次</span>
+                                    </div>
+                                    <div class="w-full bg-slate-700 h-1 rounded-full">
+                                        <div class="bg-neon-red h-full rounded-full" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-200">酒精喷雾</span>
+                                        <span class="text-neon-red font-bold">15次</span>
+                                    </div>
+                                    <div class="w-full bg-slate-700 h-1 rounded-full">
+                                        <div class="bg-neon-red h-full rounded-full" style="width: 40%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hard to Sell -->
+                        <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+                            <div class="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
+                                <h3 class="text-xs font-bold text-yellow-500 flex items-center">
+                                    <i class="fa-solid fa-hand-holding-dollar mr-1.5"></i>难推预警
+                                </h3>
+                                <span class="text-[10px] text-slate-500">Top 3</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-200">高钙片</span>
+                                        <span class="text-yellow-500 font-bold">85%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-700 h-1 rounded-full">
+                                        <div class="bg-yellow-500 h-full rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <div class="text-[8px] text-slate-500 mt-0.5 text-right">关联失败率</div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-200">西洋参</span>
+                                        <span class="text-yellow-500 font-bold">82%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-700 h-1 rounded-full">
+                                        <div class="bg-yellow-500 h-full rounded-full" style="width: 82%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-200">阿胶糕</span>
+                                        <span class="text-yellow-500 font-bold">78%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-700 h-1 rounded-full">
+                                        <div class="bg-yellow-500 h-full rounded-full" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Sentiment Insights -->
+                <div id="panel-home-sentiment" class="hidden animate-fade-in">
+                     <div class="relative pl-4 space-y-5 before:content-[''] before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[1px] before:bg-white/10">
+                        
+                        <!-- Timeline Item 1 -->
+                        <div class="relative pl-6">
+                            <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-neon-red shadow-[0_0_8px_rgba(255,42,109,0.5)] border border-[#0B0F19]"></div>
+                            <div class="bg-white/5 rounded-lg p-3 border border-neon-red/30 hover:bg-white/10 transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-neon-red/20 text-neon-red text-[10px] px-1.5 py-0.5 rounded font-medium">高风险</span>
+                                        <span class="text-[10px] text-neon-blue font-medium"><i class="fa-solid fa-store mr-1"></i>中心广场店</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">18:30</span>
+                                </div>
+                                <h3 class="text-xs text-white font-bold mb-1">价格差异引发投诉</h3>
+                                <p class="text-[11px] text-slate-300 leading-relaxed line-clamp-2">
+                                    顾客投诉连花清瘟价格比隔壁药店贵5元，情绪激动并表示要拨打12315...
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 2 -->
+                        <div class="relative pl-6">
+                            <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)] border border-[#0B0F19]"></div>
+                            <div class="bg-white/5 rounded-lg p-3 border border-yellow-500/30 hover:bg-white/10 transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-yellow-500/20 text-yellow-500 text-[10px] px-1.5 py-0.5 rounded font-medium">中风险</span>
+                                        <span class="text-[10px] text-neon-blue font-medium"><i class="fa-solid fa-store mr-1"></i>滨江路分店</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">14:15</span>
+                                </div>
+                                <h3 class="text-xs text-white font-bold mb-1">排队插队纠纷</h3>
+                                <p class="text-[11px] text-slate-300 leading-relaxed line-clamp-2">
+                                    收银台两名顾客因插队问题发生口角，店员介入调解较慢...
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- Timeline Item 3 -->
+                         <div class="relative pl-6">
+                            <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-neon-blue shadow-[0_0_8px_rgba(0,240,255,0.5)] border border-[#0B0F19]"></div>
+                            <div class="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-neon-blue/20 text-neon-blue text-[10px] px-1.5 py-0.5 rounded font-medium">低风险</span>
+                                        <span class="text-[10px] text-neon-blue font-medium"><i class="fa-solid fa-store mr-1"></i>火车站店</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">10:42</span>
+                                </div>
+                                <h3 class="text-xs text-white font-bold mb-1">建议增加代煎服务</h3>
+                                <p class="text-[11px] text-slate-300 leading-relaxed line-clamp-2">
+                                    老顾客询问是否提供代煎服务，表示如果有的话会更愿意来抓药...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                         <a href="#" class="text-[10px] text-slate-500 hover:text-white transition-colors">查看全部 12 条记录 ></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Metric Details Overlay (Hidden by default) -->
+    <div id="metric-details-view" class="fixed inset-0 bg-[#0B0F19] z-[60] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Details Header -->
+        <header class="glass-panel border-b border-white/5 px-4 py-3 flex items-center">
+            <button onclick="hideMetricDetails()" class="mr-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h1 id="detail-title" class="text-lg font-bold text-white tracking-wide">指标详情</h1>
+            </div>
+        </header>
+
+        <!-- Details Content -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            <!-- Big Stat -->
+            <div class="text-center py-6">
+                <div id="detail-value" class="text-4xl font-bold text-white mb-2">--</div>
+                <div id="detail-change" class="text-sm text-neon-green flex items-center justify-center">
+                    --
+                </div>
+            </div>
+
+            <!-- Trend Chart Section (Moved here) -->
+            <section class="glass-panel rounded-xl p-4 border border-white/5">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold text-white border-l-4 border-neon-blue pl-2">趋势分析</h2>
+                    <!-- Tab Switcher -->
+                    <div class="flex bg-slate-800/50 rounded-lg p-0.5 border border-white/5">
+                        <button onclick="switchChartTab('daily')" id="tab-daily" class="px-3 py-1 text-[10px] rounded text-white bg-slate-700 shadow-sm transition-all">近7日</button>
+                        <button onclick="switchChartTab('hourly')" id="tab-hourly" class="px-3 py-1 text-[10px] rounded text-slate-400 hover:text-white transition-all">昨日分时</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Drill Down List -->
+            <section class="glass-panel rounded-xl p-4 border border-white/5">
+                <h2 class="text-sm font-bold text-white mb-3">门店</h2>
+                
+                <!-- Table Header -->
+                <div class="flex items-center text-xs text-slate-400 border-b border-white/10 pb-2 mb-2">
+                    <div class="flex-1">门店名称</div>
+                    <div class="w-16 text-right">数值</div>
+                    <div class="w-16 text-right cursor-pointer hover:text-white" onclick="sortStoreList('changeAbs')">
+                        涨跌 <i id="sort-icon-changeAbs" class="fa-solid fa-sort text-[10px] ml-0.5"></i>
+                    </div>
+                    <div class="w-20 text-right cursor-pointer hover:text-white" onclick="sortStoreList('changeRel')">
+                        涨跌幅 <i id="sort-icon-changeRel" class="fa-solid fa-sort-down text-neon-blue text-[10px] ml-0.5"></i>
+                    </div>
+                </div>
+
+                <!-- List Container -->
+                <div id="store-list-container" class="space-y-3">
+                    <!-- Dynamic Content -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Store Details Overlay (New) -->
+    <div id="store-details-view" class="fixed inset-0 bg-[#0B0F19] z-[70] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Header -->
+        <header class="glass-panel border-b border-white/5 px-4 py-3 flex items-center">
+            <button onclick="hideStoreDetails()" class="mr-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h1 id="store-detail-title" class="text-lg font-bold text-white tracking-wide">门店详情</h1>
+                <p class="text-xs text-slate-400">数据日期: 2026-01-11 (昨日)</p>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- Horizontal Scrollable Cards -->
+            <section>
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold text-white border-l-4 border-neon-blue pl-2">核心指标</h2>
+                    <span class="text-[10px] text-slate-500">左右滑动查看更多</span>
+                </div>
+                <div class="flex overflow-x-auto space-x-3 pb-2 scrollbar-hide -mx-4 px-4">
+                    <!-- Fixed Card: Traffic -->
+                    <div onclick="showStoreMetricDetails('客流量', '158', '+12', '+8.2%', true)" class="flex-shrink-0 w-40 glass-panel rounded-xl p-3 border border-white/10 relative overflow-hidden active:scale-95 transition-transform">
+                        <div class="text-xs text-slate-400 mb-1">客流量</div>
+                        <div class="text-xl font-bold text-white mb-1">158</div>
+                        <div class="text-[10px] text-neon-red flex items-center">
+                            <i class="fa-solid fa-arrow-trend-up mr-1"></i> +12
+                        </div>
+                        <div class="text-[10px] text-neon-red mt-0.5">+8.2% 较前日</div>
+                    </div>
+
+                    <!-- Dynamic Card 1 -->
+                    <div onclick="showStoreMetricDetails('连花清瘟-开口率', '42%', '-5%', '-10.6%', false)" class="flex-shrink-0 w-40 glass-panel rounded-xl p-3 border border-white/10 relative overflow-hidden active:scale-95 transition-transform">
+                        <div class="text-xs text-slate-400 mb-1">连花清瘟-开口率</div>
+                        <div class="text-xl font-bold text-white mb-1">42%</div>
+                        <div class="text-[10px] text-neon-green flex items-center">
+                            <i class="fa-solid fa-arrow-trend-down mr-1"></i> -5%
+                        </div>
+                        <div class="text-[10px] text-neon-green mt-0.5">-10.6% 较前日</div>
+                    </div>
+
+                    <!-- Dynamic Card 2 -->
+                    <div onclick="showStoreMetricDetails('关联推荐-执行率', '68%', '+3%', '+4.6%', true)" class="flex-shrink-0 w-40 glass-panel rounded-xl p-3 border border-white/10 relative overflow-hidden active:scale-95 transition-transform">
+                        <div class="text-xs text-slate-400 mb-1">关联推荐-执行率</div>
+                        <div class="text-xl font-bold text-white mb-1">68%</div>
+                        <div class="text-[10px] text-neon-red flex items-center">
+                            <i class="fa-solid fa-arrow-trend-up mr-1"></i> +3%
+                        </div>
+                        <div class="text-[10px] text-neon-red mt-0.5">+4.6% 较前日</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Panel -->
+            <section class="flex flex-col h-full">
+                <!-- Tab Headers -->
+                <div class="flex border-b border-white/10 mb-4 sticky top-0 bg-[#0B0F19] z-10 pt-2">
+                    <button onclick="switchStoreTab('general')" id="tab-store-general" class="flex-1 py-3 text-center text-sm font-bold text-neon-blue border-b-2 border-neon-blue transition-all">
+                        综合信息
+                    </button>
+                    <button onclick="switchStoreTab('sentiment')" id="tab-store-sentiment" class="flex-1 py-3 text-center text-sm font-bold text-slate-400 hover:text-white transition-all">
+                        门店舆情
+                    </button>
+                </div>
+
+                <!-- Tab 1: Comprehensive Info (General) -->
+                <div id="panel-store-general" class="space-y-4 pb-4 animate-fade-in">
+                    
+                    <!-- 1. Hot Words -->
+                    <div class="glass-panel rounded-xl p-4 border border-white/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-sm font-bold text-white border-l-4 border-neon-purple pl-2">昨日热词</h2>
+                            <span class="text-[10px] text-slate-500">顾客提及Top 5</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 rounded bg-neon-purple/10 text-neon-purple text-xs border border-neon-purple/20">感冒 (32)</span>
+                            <span class="px-2 py-1 rounded bg-neon-blue/10 text-neon-blue text-xs border border-neon-blue/20">咳嗽 (28)</span>
+                            <span class="px-2 py-1 rounded bg-white/5 text-slate-300 text-xs border border-white/10">退烧药</span>
+                            <span class="px-2 py-1 rounded bg-white/5 text-slate-300 text-xs border border-white/10">口罩</span>
+                            <span class="px-2 py-1 rounded bg-white/5 text-slate-300 text-xs border border-white/10">会员积分</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Product Insights -->
+                    <div class="glass-panel rounded-xl p-4 border border-white/5">
+                        <h2 class="text-sm font-bold text-white border-l-4 border-neon-red pl-2 mb-3">商品洞察</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Out of Stock -->
+                            <div>
+                                <div class="text-[10px] text-slate-400 mb-2">缺货 Top 3</div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white">儿童退热贴</span>
+                                        <span class="text-neon-red">5次</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white">N95口罩</span>
+                                        <span class="text-neon-red">3次</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Hard to Sell -->
+                            <div>
+                                <div class="text-[10px] text-slate-400 mb-2">难推 Top 3 (失败率)</div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white">高钙片</span>
+                                        <span class="text-slate-300">85%</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-white">西洋参</span>
+                                        <span class="text-slate-300">82%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Customer Insights -->
+                    <div class="glass-panel rounded-xl p-4 border border-white/5">
+                        <h2 class="text-sm font-bold text-white border-l-4 border-yellow-500 pl-2 mb-3">客户洞察</h2>
+                        <div class="text-[10px] text-slate-400 mb-2">流失归因分布</div>
+                        
+                        <div class="space-y-3">
+                            <!-- Reason 1 -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-white">嫌贵/比价</span>
+                                    <span class="text-white">45%</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-yellow-500 h-full rounded-full" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <!-- Reason 2 -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-white">缺货/无品牌</span>
+                                    <span class="text-white">30%</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-neon-red h-full rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <!-- Reason 3 -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-white">疗效存疑</span>
+                                    <span class="text-white">15%</span>
+                                </div>
+                                <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-neon-blue h-full rounded-full" style="width: 15%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Employee Performance -->
+                    <div class="glass-panel rounded-xl p-4 border border-white/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-sm font-bold text-white border-l-4 border-neon-green pl-2">员工表现</h2>
+                            <span class="text-[10px] text-slate-500">按合规率排序</span>
+                        </div>
+                        <div class="space-y-3">
+                            <!-- Employee 1 -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-bold border border-neon-green/50">
+                                        王
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-white font-medium">王小美 <span class="text-[10px] text-neon-red bg-neon-red/10 px-1 rounded ml-1">销冠</span></div>
+                                        <div class="text-[10px] text-slate-400">服务人数: 42</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-neon-green">98%</div>
+                                    <div class="text-[10px] text-slate-500">合规率</div>
+                                </div>
+                            </div>
+                            <!-- Employee 2 -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-bold border border-white/10">
+                                        李
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-white font-medium">李建国</div>
+                                        <div class="text-[10px] text-slate-400">服务人数: 35</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-yellow-500">85%</div>
+                                    <div class="text-[10px] text-slate-500">合规率</div>
+                                </div>
+                            </div>
+                            <!-- Employee 3 -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white font-bold border border-neon-red/50">
+                                        陈
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-white font-medium">陈阿姨</div>
+                                        <div class="text-[10px] text-slate-400">服务人数: 28</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-bold text-neon-red">62%</div>
+                                    <div class="text-[10px] text-slate-500">合规率</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Store Sentiment (Timeline) -->
+                <div id="panel-store-sentiment" class="hidden space-y-4 pb-4 animate-fade-in">
+                    <div class="relative pl-4 space-y-6 before:content-[''] before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[1px] before:bg-white/10">
+                        
+                        <!-- Timeline Item 1 -->
+                        <div class="relative pl-6">
+                            <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-neon-red shadow-[0_0_8px_rgba(255,42,109,0.5)] border border-[#0B0F19]"></div>
+                            <div class="glass-panel rounded-xl p-3 border border-neon-red/30">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="bg-neon-red/20 text-neon-red text-[10px] px-1.5 py-0.5 rounded font-medium">高风险 · 投诉</span>
+                                    <span class="text-[10px] text-slate-400">18:30</span>
+                                </div>
+                                <h3 class="text-xs text-white font-bold mb-1">价格差异引发投诉</h3>
+                                <p class="text-[11px] text-slate-300 leading-relaxed">
+                                    顾客投诉连花清瘟价格比隔壁药店贵5元，情绪激动并表示要拨打12315。店员解释未被接受。
+                                </p>
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <button class="bg-white/5 hover:bg-white/10 text-[10px] text-white px-2 py-1 rounded flex items-center transition-colors">
+                                        <i class="fa-solid fa-play mr-1.5 text-[8px]"></i> 播放录音
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 2 -->
+                        <div class="relative pl-6">
+                            <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)] border border-[#0B0F19]"></div>
+                            <div class="glass-panel rounded-xl p-3 border border-yellow-500/30">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="bg-yellow-500/20 text-yellow-500 text-[10px] px-1.5 py-0.5 rounded font-medium">中风险 · 争吵</span>
+                                    <span class="text-[10px] text-slate-400">14:15</span>
+                                </div>
+                                <h3 class="text-xs text-white font-bold mb-1">排队插队纠纷</h3>
+                                <p class="text-[11px] text-slate-300 leading-relaxed">
+                                    收银台两名顾客因插队问题发生口角，店员介入调解较慢，导致场面一度混乱。
+                                </p>
+                            </div>
+                        </div>
+
+                         <!-- Timeline Item 3 -->
+                         <div class="relative pl-6">
+                            <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-neon-blue shadow-[0_0_8px_rgba(0,240,255,0.5)] border border-[#0B0F19]"></div>
+                            <div class="glass-panel rounded-xl p-3 border border-white/5">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="bg-neon-blue/20 text-neon-blue text-[10px] px-1.5 py-0.5 rounded font-medium">低风险 · 建议</span>
+                                    <span class="text-[10px] text-slate-400">10:42</span>
+                                </div>
+                                <h3 class="text-xs text-white font-bold mb-1">希望增加中药代煎服务</h3>
+                                <p class="text-[11px] text-slate-300 leading-relaxed">
+                                    老顾客询问是否提供代煎服务，表示如果有的话会更愿意来抓药。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Keyword Details Overlay (New) -->
+    <div id="keyword-details-view" class="fixed inset-0 bg-[#0B0F19] z-[70] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Header -->
+        <header class="glass-panel border-b border-white/5 px-4 py-3 flex items-center">
+            <button onclick="hideKeywordDetails()" class="mr-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-wide">热词详情</h1>
+                <p class="text-xs text-slate-400">数据日期: 2026-01-11 (昨日)</p>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- 1. Header Stats -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <h2 id="kw-detail-name" class="text-2xl font-bold text-white">--</h2>
+                        <span id="kw-detail-tag" class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300">--</span>
+                    </div>
+                    <div class="text-xs text-slate-400">昨日全公司提及</div>
+                </div>
+                <div class="text-right">
+                    <div id="kw-detail-count" class="text-2xl font-bold text-neon-blue font-mono">--</div>
+                    <div id="kw-detail-change" class="text-xs text-neon-red">--</div>
+                </div>
+            </div>
+
+            <!-- 2. Related Sessions -->
+            <section class="space-y-3">
+                <h2 class="text-sm font-bold text-white pl-2 border-l-4 border-neon-blue">相关会话</h2>
+                
+                <!-- Dialog 1 -->
+                <div class="glass-panel rounded-xl p-3 border border-white/5">
+                    <div class="flex justify-between items-start mb-2">
+                         <div>
+                            <div class="text-xs text-white font-bold mb-0.5">顾客购买感冒药咨询</div>
+                            <div class="text-[10px] text-slate-400"><i class="fa-solid fa-store mr-1"></i>中心广场店 · 王小美</div>
+                         </div>
+                         <span class="text-[10px] text-neon-purple bg-neon-purple/10 px-1.5 py-0.5 rounded">关联失败</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-2">
+                        "您好，买<span class="text-neon-blue font-bold">感冒</span>药是吧？这款快克效果不错... 需要顺便带盒维C增强免疫力吗？"
+                        <br><span class="text-slate-500 italic">"不用了，就拿这个。"</span>
+                    </p>
+                    <button class="text-[10px] text-white bg-white/10 px-2 py-1 rounded flex items-center w-fit hover:bg-white/20">
+                        <i class="fa-solid fa-play mr-1.5 text-[8px]"></i> 播放录音
+                    </button>
+                </div>
+
+                <!-- Dialog 2 -->
+                <div class="glass-panel rounded-xl p-3 border border-white/5">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="text-xs text-white font-bold mb-0.5">流感症状咨询</div>
+                            <div class="text-[10px] text-slate-400"><i class="fa-solid fa-store mr-1"></i>滨江路分店 · 李建国</div>
+                        </div>
+                        <span class="text-[10px] text-neon-green bg-neon-green/10 px-1.5 py-0.5 rounded">咨询场景</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-2">
+                        "最近<span class="text-neon-blue font-bold">感冒</span>的人特别多，主要是流感。您除了头痛还有发烧症状吗？"
+                    </p>
+                    <button class="text-[10px] text-white bg-white/10 px-2 py-1 rounded flex items-center w-fit hover:bg-white/20">
+                        <i class="fa-solid fa-play mr-1.5 text-[8px]"></i> 播放录音
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full glass-panel border-t border-white/10 pb-safe pt-2 z-50">
+        <div class="flex justify-around items-center h-14">
+            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4">
+                <i class="fa-solid fa-chart-pie text-neon-blue text-lg shadow-neon-blue"></i>
+                <span class="text-[10px] text-neon-blue font-medium">经营概览</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4 text-slate-500 hover:text-white transition">
+                <i class="fa-solid fa-shield-halved text-lg"></i>
+                <span class="text-[10px]">合规风控</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4 text-slate-500 hover:text-white transition">
+                <i class="fa-solid fa-list-ol text-lg"></i>
+                <span class="text-[10px]">门店排行</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4 text-slate-500 hover:text-white transition">
+                <i class="fa-solid fa-user-gear text-lg"></i>
+                <span class="text-[10px]">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Scripts for Charts -->
+    <script>
+        // Common Chart Config
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+        
+        let trafficChartInstance = null;
+        let currentMetricTitle = ''; // Track current metric for tab switching
+
+        // Base Data Definitions
+        const dataConfig = {
+            '客流量': {
+                hourly: {
+                    labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
+                    data: [32, 68, 95, 112, 78, 56, 72, 98, 125, 142, 156, 138, 95, 58],
+                    label: '昨日分时客流'
+                },
+                daily: {
+                    labels: ['1-05', '1-06', '1-07', '1-08', '1-09', '1-10', '1-11'],
+                    data: [1150, 1180, 1210, 1190, 1250, 1320, 1245],
+                    label: '近7日客流'
+                },
+                style: {
+                    borderColor: '#00F0FF',
+                    backgroundColor: (ctx) => {
+                        const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
+                        gradient.addColorStop(0, 'rgba(0, 240, 255, 0.5)');
+                        gradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+                        return gradient;
+                    },
+                    pointBorderColor: '#00F0FF',
+                    yMax: 200,
+                    yMaxDaily: 1500
+                }
+            },
+            '合规率': {
+                hourly: {
+                    labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
+                    data: [92, 88, 85, 82, 78, 90, 88, 85, 82, 86, 90, 92, 88, 95],
+                    label: '昨日分时合规率'
+                },
+                daily: {
+                    labels: ['1-05', '1-06', '1-07', '1-08', '1-09', '1-10', '1-11'],
+                    data: [85.5, 86.2, 84.8, 87.5, 89.0, 90.5, 88.4],
+                    label: '近7日合规率'
+                },
+                style: {
+                    borderColor: '#BC13FE',
+                    backgroundColor: 'transparent',
+                    pointBorderColor: '#BC13FE',
+                    borderDash: [5, 5],
+                    fill: false,
+                    yMax: 100,
+                    yMaxDaily: 100
+                }
+            }
+        };
+
+        // Initialize Chart (Empty initially or default)
+        function initTrafficChart() {
+            const ctxTraffic = document.getElementById('trafficChart').getContext('2d');
+            trafficChartInstance = new Chart(ctxTraffic, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#94a3b8' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 9 }, color: '#94a3b8' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            suggestedMax: 200,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Store List Data & Logic ---
+        const storeData = [
+            { name: '中心广场店', value: 450, changeAbs: 50, changeRel: 12.5 },
+            { name: '滨江路分店', value: 320, changeAbs: -20, changeRel: -5.8 },
+            { name: '火车站店', value: 280, changeAbs: 10, changeRel: 3.7 },
+            { name: '天河体育西店', value: 520, changeAbs: 85, changeRel: 19.5 },
+            { name: '越秀公园店', value: 190, changeAbs: -45, changeRel: -19.1 },
+            { name: '珠江新城店', value: 680, changeAbs: 120, changeRel: 21.4 },
+            { name: '北京路店', value: 410, changeAbs: -10, changeRel: -2.4 }
+        ];
+
+        let currentSortField = 'changeRel';
+        let currentSortOrder = 'desc'; // 'asc' or 'desc'
+
+        function renderStoreList() {
+            const container = document.getElementById('store-list-container');
+            container.innerHTML = ''; // Clear current
+
+            // Sort data
+            const sortedData = [...storeData].sort((a, b) => {
+                const valA = a[currentSortField];
+                const valB = b[currentSortField];
+                return currentSortOrder === 'asc' ? valA - valB : valB - valA;
+            });
+
+            // Render items
+            sortedData.forEach(store => {
+                const isUp = store.changeAbs >= 0;
+                const colorClass = isUp ? 'text-neon-red' : 'text-neon-green';
+                const signAbs = isUp && store.changeAbs > 0 ? '+' : '';
+                const signRel = isUp && store.changeRel > 0 ? '+' : '';
+
+                const html = `
+                    <div onclick="showStoreDetails('${store.name}')" class="flex items-center text-sm border-b border-white/5 pb-2 last:border-0 cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors p-1 rounded">
+                        <div class="flex-1 text-slate-300 truncate pr-2">${store.name}</div>
+                        <div class="w-16 text-right text-white font-mono">${store.value}</div>
+                        <div class="w-16 text-right font-mono text-xs ${colorClass}">${signAbs}${store.changeAbs}</div>
+                        <div class="w-20 text-right font-mono text-xs ${colorClass}">${signRel}${store.changeRel}%</div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            // Update Sort Icons
+            updateSortIcons();
+        }
+
+        function sortStoreList(field) {
+            if (currentSortField === field) {
+                // Toggle order
+                currentSortOrder = currentSortOrder === 'desc' ? 'asc' : 'desc';
+            } else {
+                // New field, default to desc
+                currentSortField = field;
+                currentSortOrder = 'desc';
+            }
+            renderStoreList();
+        }
+
+        function updateSortIcons() {
+            // Reset icons
+            document.getElementById('sort-icon-changeAbs').className = 'fa-solid fa-sort text-[10px] ml-0.5 text-slate-600';
+            document.getElementById('sort-icon-changeRel').className = 'fa-solid fa-sort text-[10px] ml-0.5 text-slate-600';
+            
+            // Set active icon
+            const activeIconId = `sort-icon-${currentSortField}`;
+            const activeIcon = document.getElementById(activeIconId);
+            const iconClass = currentSortOrder === 'desc' ? 'fa-sort-down' : 'fa-sort-up';
+            
+            activeIcon.className = `fa-solid ${iconClass} text-neon-blue text-[10px] ml-0.5`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTrafficChart();
+            renderStoreList();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTrafficChart();
+            renderStoreList();
+        });
+
+        // --- Home Tab Switching Logic ---
+        function switchHomeTab(tab) {
+            const btnHotwords = document.getElementById('tab-home-hotwords');
+            const btnProducts = document.getElementById('tab-home-products');
+            const btnSentiment = document.getElementById('tab-home-sentiment');
+            
+            const panelHotwords = document.getElementById('panel-home-hotwords');
+            const panelProducts = document.getElementById('panel-home-products');
+            const panelSentiment = document.getElementById('panel-home-sentiment');
+
+            const activeBtnClasses = ['text-neon-blue', 'border-neon-blue', 'bg-white/5'];
+            const inactiveBtnClasses = ['text-slate-400', 'hover:text-white', 'border-transparent'];
+
+            // Reset all
+            [btnHotwords, btnProducts, btnSentiment].forEach(btn => {
+                btn.classList.remove(...activeBtnClasses);
+                btn.classList.add(...inactiveBtnClasses);
+            });
+            [panelHotwords, panelProducts, panelSentiment].forEach(panel => {
+                panel.classList.add('hidden');
+            });
+
+            // Activate target
+            if (tab === 'hotwords') {
+                btnHotwords.classList.add(...activeBtnClasses);
+                btnHotwords.classList.remove(...inactiveBtnClasses);
+                panelHotwords.classList.remove('hidden');
+            } else if (tab === 'products') {
+                btnProducts.classList.add(...activeBtnClasses);
+                btnProducts.classList.remove(...inactiveBtnClasses);
+                panelProducts.classList.remove('hidden');
+            } else if (tab === 'sentiment') {
+                btnSentiment.classList.add(...activeBtnClasses);
+                btnSentiment.classList.remove(...inactiveBtnClasses);
+                panelSentiment.classList.remove('hidden');
+            }
+        }
+
+        // --- Interaction Logic ---
+        function switchChartTab(mode) {
+            // Update Tab Styles
+            const activeClass = 'bg-slate-700 text-white shadow-sm'.split(' ');
+            const inactiveClass = 'text-slate-400 hover:text-white'.split(' ');
+            
+            const tabDaily = document.getElementById('tab-daily');
+            const tabHourly = document.getElementById('tab-hourly');
+            
+            if (mode === 'daily') {
+                tabDaily.classList.add(...activeClass);
+                tabDaily.classList.remove(...inactiveClass);
+                tabHourly.classList.remove(...activeClass);
+                tabHourly.classList.add(...inactiveClass);
+            } else {
+                tabHourly.classList.add(...activeClass);
+                tabHourly.classList.remove(...inactiveClass);
+                tabDaily.classList.remove(...activeClass);
+                tabDaily.classList.add(...inactiveClass);
+            }
+
+            // Update Chart Data
+            updateChartData(mode);
+        }
+
+        function updateChartData(mode) {
+            if (!trafficChartInstance || !dataConfig[currentMetricTitle]) return;
+            
+            const config = dataConfig[currentMetricTitle];
+            const dataObj = mode === 'daily' ? config.daily : config.hourly;
+            const style = config.style;
+
+            // Update Labels
+            trafficChartInstance.data.labels = dataObj.labels;
+
+            // Update Dataset
+            const newDataset = {
+                label: dataObj.label,
+                data: dataObj.data,
+                borderColor: style.borderColor,
+                backgroundColor: style.backgroundColor,
+                pointBorderColor: style.pointBorderColor,
+                pointBackgroundColor: '#0B0F19',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: style.fill !== undefined ? style.fill : true,
+                borderDash: style.borderDash || [],
+                pointRadius: 4,
+                yAxisID: 'y'
+            };
+
+            trafficChartInstance.data.datasets = [newDataset];
+
+            // Update Scales
+            const yMax = mode === 'daily' ? style.yMaxDaily : style.yMax;
+            trafficChartInstance.options.scales.y.suggestedMax = yMax;
+
+            trafficChartInstance.update();
+        }
+
+        function showMetricDetails(title, value, changeAbs, changeRel, isUp) {
+            currentMetricTitle = title; // Set current metric context
+            
+            document.getElementById('detail-title').innerText = title + '详情';
+            document.getElementById('detail-value').innerText = value;
+            
+            // Format Change text and color
+            const changeEl = document.getElementById('detail-change');
+            const iconClass = isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+            const colorClass = isUp ? 'text-neon-red' : 'text-neon-green';
+            
+            changeEl.className = `text-sm flex items-center justify-center ${colorClass}`;
+            changeEl.innerHTML = `<i class="fa-solid ${iconClass} mr-2"></i> ${changeAbs} <span class="mx-2 text-slate-600">|</span> ${changeRel} <span class="ml-1 text-slate-500">较前日</span>`;
+            
+            // Show the view
+            const view = document.getElementById('metric-details-view');
+            view.classList.remove('translate-x-full');
+            document.body.style.overflow = 'hidden';
+
+            // Reset Tab to Daily by default or Hourly? 
+            // Let's default to Daily for trends as per new requirement context, or stick to Hourly if that was the "background"
+            // Let's default to 'daily' as it is usually the primary trend view
+            switchChartTab('daily');
+        }
+
+        function hideMetricDetails() {
+            document.getElementById('metric-details-view').classList.add('translate-x-full');
+            document.body.style.overflow = '';
+        }
+
+        // --- Store Details Logic ---
+        function showStoreDetails(storeName) {
+            document.getElementById('store-detail-title').innerText = storeName;
+            
+            // In a real app, we would fetch data for this specific store here.
+            // For now, the HTML structure has static mock data.
+
+            const view = document.getElementById('store-details-view');
+            view.classList.remove('translate-x-full');
+        }
+
+        function hideStoreDetails() {
+            document.getElementById('store-details-view').classList.add('translate-x-full');
+        }
+
+        // --- Store Tab Switching Logic ---
+        function switchStoreTab(tab) {
+            const btnGeneral = document.getElementById('tab-store-general');
+            const btnSentiment = document.getElementById('tab-store-sentiment');
+            const panelGeneral = document.getElementById('panel-store-general');
+            const panelSentiment = document.getElementById('panel-store-sentiment');
+
+            const activeBtnClasses = ['text-neon-blue', 'border-neon-blue'];
+            const inactiveBtnClasses = ['text-slate-400', 'hover:text-white', 'border-transparent']; // Add transparent border to avoid jumping if needed, or just remove border-neon-blue
+
+            if (tab === 'general') {
+                // Activate General
+                btnGeneral.classList.add(...activeBtnClasses);
+                btnGeneral.classList.remove('text-slate-400', 'hover:text-white');
+                
+                btnSentiment.classList.remove(...activeBtnClasses);
+                btnSentiment.classList.add('text-slate-400', 'hover:text-white');
+
+                // Show Panel
+                panelGeneral.classList.remove('hidden');
+                panelSentiment.classList.add('hidden');
+            } else {
+                // Activate Sentiment
+                btnSentiment.classList.add(...activeBtnClasses);
+                btnSentiment.classList.remove('text-slate-400', 'hover:text-white');
+
+                btnGeneral.classList.remove(...activeBtnClasses);
+                btnGeneral.classList.add('text-slate-400', 'hover:text-white');
+
+                // Show Panel
+                panelSentiment.classList.remove('hidden');
+                panelGeneral.classList.add('hidden');
+            }
+        }
+        function showStoreMetricDetails(metric, value, change, changeRel, isUp) {
+            // Re-use the metric details view but hide the store list
+            // We need to bump z-index to show it ABOVE the store details view (z-70)
+            const metricView = document.getElementById('metric-details-view');
+            metricView.classList.remove('z-[60]');
+            metricView.classList.add('z-[80]');
+            
+            showMetricDetails(metric, value, change, changeRel, isUp);
+            
+            // Hide the store list container since we are deep diving into a specific store
+            document.querySelector('#metric-details-view section:last-child').style.display = 'none';
+            
+            // Override the back button behavior to go back to Store Details instead of Dashboard
+            const backBtn = document.querySelector('#metric-details-view header button');
+            backBtn.onclick = function() {
+                hideMetricDetails();
+                // Restore default behavior, z-index and display
+                setTimeout(() => {
+                     document.querySelector('#metric-details-view section:last-child').style.display = 'block';
+                     metricView.classList.remove('z-[80]');
+                     metricView.classList.add('z-[60]');
+                     backBtn.onclick = hideMetricDetails; // Restore original handler
+                }, 300);
+            };
+        }
+        // --- Keyword Details Logic ---
+        let keywordChartInstance = null;
+
+        function showKeywordDetails(word, tag, count, change, isUp) {
+            // Update Text
+            document.getElementById('kw-detail-name').innerText = word;
+            document.getElementById('kw-detail-tag').innerText = tag;
+            document.getElementById('kw-detail-count').innerText = count;
+            
+            const changeEl = document.getElementById('kw-detail-change');
+            const icon = isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+            const color = isUp ? 'text-neon-red' : 'text-neon-green';
+            const sign = isUp ? '+' : '';
+            changeEl.className = `text-xs ${color}`;
+            changeEl.innerHTML = `<i class="fa-solid ${icon} mr-1"></i> ${sign}${change}% 较前日`;
+
+            // Show View
+            document.getElementById('keyword-details-view').classList.remove('translate-x-full');
+            
+            // Init Chart (Delayed to allow layout)
+            // setTimeout(initKeywordChart, 300);
+        }
+
+        function hideKeywordDetails() {
+            document.getElementById('keyword-details-view').classList.add('translate-x-full');
+        }
+
+        /*
+        function initKeywordChart() {
+            const ctx = document.getElementById('keywordTrendChart').getContext('2d');
+            
+            if (keywordChartInstance) {
+                keywordChartInstance.destroy();
+            }
+
+            keywordChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
+                    datasets: [{
+                        label: '提及次数',
+                        data: [12, 18, 45, 62, 35, 28, 42, 55, 68, 72, 85, 45, 22, 10], // Mock Data
+                        borderColor: '#00F0FF',
+                        backgroundColor: (ctx) => {
+                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
+                            gradient.addColorStop(0, 'rgba(0, 240, 255, 0.4)');
+                            gradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+                            return gradient;
+                        },
+                        pointBackgroundColor: '#0B0F19',
+                        pointBorderColor: '#00F0FF',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 9 }, color: '#64748b' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b' }
+                        }
+                    }
+                }
+            });
+        }
+        */
+    </script>
+</body>
+</html>

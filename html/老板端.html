@@ -72,27 +72,8 @@
 </head>
 <body class="pb-20">
 
-    <!-- Header -->
-    <header class="fixed top-0 w-full z-50 glass-panel border-b border-white/5 px-4 py-3 flex justify-between items-center">
-        <div>
-            <h1 class="text-lg font-bold text-white tracking-wide">
-                <i class="fa-solid fa-chart-network text-neon-blue mr-2"></i>智能决策·指挥舱
-            </h1>
-            <p class="text-xs text-slate-400">上次更新: 刚刚</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <button class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 relative">
-                <i class="fa-solid fa-bell text-slate-300 text-sm"></i>
-                <span class="absolute top-0 right-0 w-2 h-2 bg-neon-red rounded-full animate-pulse"></span>
-            </button>
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-neon-blue to-neon-purple p-0.5">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" class="rounded-full bg-slate-900" alt="Admin">
-            </div>
-        </div>
-    </header>
-
     <!-- Main Content -->
-    <main id="dashboard-view" class="mt-20 px-4 space-y-6">
+    <main id="dashboard-view" class="pt-6 px-4 space-y-6">
 
         <!-- 数据日期标识（固定展示昨日数据，不提供时间范围切换） -->
         <div class="flex items-center justify-between bg-slate-800/50 px-3 py-2 rounded-lg border border-white/5">
@@ -105,32 +86,9 @@
         </div>
 
         <!-- Hero Stats Cards -->
-        <div class="grid grid-cols-2 gap-4">
-            <!-- Stat 1: 昨日接待客流 -->
-            <div onclick="showMetricDetails('客流量', '1,245', '+120', '+10.6%', true)" class="glass-panel p-4 rounded-xl relative overflow-hidden group cursor-pointer active:scale-95 transition-transform">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-blue/20 rounded-full blur-xl group-hover:bg-neon-blue/30 transition-all"></div>
-                <div class="flex items-start justify-between mb-2">
-                    <span class="text-slate-400 text-xs">昨日接待客流</span>
-                    <i class="fa-solid fa-users text-neon-blue"></i>
-                </div>
-                <div class="text-2xl font-bold text-white mb-1">1,245</div>
-                <div class="text-xs text-neon-red flex items-center">
-                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> +120 <span class="ml-1 text-slate-500">较前日</span>
-                </div>
-            </div>
-            
-            <!-- Stat 2: 昨日综合合规率 -->
-            <div onclick="showMetricDetails('合规率', '88.4%', '-2.1%', '-2.3%', false)" class="glass-panel p-4 rounded-xl relative overflow-hidden group cursor-pointer active:scale-95 transition-transform">
-                <div class="absolute -right-4 -top-4 w-16 h-16 bg-neon-purple/20 rounded-full blur-xl group-hover:bg-neon-purple/30 transition-all"></div>
-                <div class="flex items-start justify-between mb-2">
-                    <span class="text-slate-400 text-xs">昨日合规率</span>
-                    <i class="fa-solid fa-check-double text-neon-purple"></i>
-                </div>
-                <div class="text-2xl font-bold text-white mb-1">88.4%</div>
-                <div class="text-xs text-neon-green flex items-center">
-                    <i class="fa-solid fa-arrow-trend-down mr-1"></i> -2.1% <span class="ml-1 text-slate-500">较前日</span>
-                </div>
-            </div>
+        <!-- 改为横向滚动容器，以支持动态添加和管理 -->
+        <div id="metrics-scroll-container" class="flex overflow-x-auto whitespace-nowrap pb-2 -mx-4 px-4 space-x-3 scrollbar-hide">
+            <!-- Metrics will be rendered here by JavaScript -->
         </div>
 
         <!-- Section: Intelligence Tab Panel -->
@@ -268,7 +226,7 @@
                                 <span class="text-[10px] text-slate-500">Top 3</span>
                             </div>
                             <div class="space-y-3">
-                                <div>
+                                <div onclick="showProductDetails('儿童退热贴', 'stockout')" class="cursor-pointer active:scale-95 transition-transform">
                                     <div class="flex justify-between text-xs mb-1">
                                         <span class="text-slate-200">儿童退热贴</span>
                                         <span class="text-neon-red font-bold">42次</span>
@@ -277,7 +235,7 @@
                                         <div class="bg-neon-red h-full rounded-full" style="width: 80%"></div>
                                     </div>
                                 </div>
-                                <div>
+                                <div onclick="showProductDetails('N95口罩', 'stockout')" class="cursor-pointer active:scale-95 transition-transform">
                                     <div class="flex justify-between text-xs mb-1">
                                         <span class="text-slate-200">N95口罩</span>
                                         <span class="text-neon-red font-bold">28次</span>
@@ -286,7 +244,7 @@
                                         <div class="bg-neon-red h-full rounded-full" style="width: 60%"></div>
                                     </div>
                                 </div>
-                                <div>
+                                <div onclick="showProductDetails('酒精喷雾', 'stockout')" class="cursor-pointer active:scale-95 transition-transform">
                                     <div class="flex justify-between text-xs mb-1">
                                         <span class="text-slate-200">酒精喷雾</span>
                                         <span class="text-neon-red font-bold">15次</span>
@@ -307,7 +265,7 @@
                                 <span class="text-[10px] text-slate-500">Top 3</span>
                             </div>
                             <div class="space-y-3">
-                                <div>
+                                <div onclick="showProductDetails('高钙片', 'hard')" class="cursor-pointer active:scale-95 transition-transform">
                                     <div class="flex justify-between text-xs mb-1">
                                         <span class="text-slate-200">高钙片</span>
                                         <span class="text-yellow-500 font-bold">85%</span>
@@ -317,7 +275,7 @@
                                     </div>
                                     <div class="text-[8px] text-slate-500 mt-0.5 text-right">关联失败率</div>
                                 </div>
-                                <div>
+                                <div onclick="showProductDetails('西洋参', 'hard')" class="cursor-pointer active:scale-95 transition-transform">
                                     <div class="flex justify-between text-xs mb-1">
                                         <span class="text-slate-200">西洋参</span>
                                         <span class="text-yellow-500 font-bold">82%</span>
@@ -326,7 +284,7 @@
                                         <div class="bg-yellow-500 h-full rounded-full" style="width: 82%"></div>
                                     </div>
                                 </div>
-                                <div>
+                                <div onclick="showProductDetails('阿胶糕', 'hard')" class="cursor-pointer active:scale-95 transition-transform">
                                     <div class="flex justify-between text-xs mb-1">
                                         <span class="text-slate-200">阿胶糕</span>
                                         <span class="text-yellow-500 font-bold">78%</span>
@@ -347,10 +305,9 @@
                         <!-- Timeline Item 1 -->
                         <div class="relative pl-6">
                             <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-neon-red shadow-[0_0_8px_rgba(255,42,109,0.5)] border border-[#0B0F19]"></div>
-                            <div class="bg-white/5 rounded-lg p-3 border border-neon-red/30 hover:bg-white/10 transition-colors cursor-pointer">
+                            <div onclick="showSessionDetails('session-risk-001')" class="bg-white/5 rounded-lg p-3 border border-neon-red/30 hover:bg-white/10 transition-colors cursor-pointer active:scale-95 transform transition-transform">
                                 <div class="flex justify-between items-start mb-1">
                                     <div class="flex items-center space-x-2">
-                                        <span class="bg-neon-red/20 text-neon-red text-[10px] px-1.5 py-0.5 rounded font-medium">高风险</span>
                                         <span class="text-[10px] text-neon-blue font-medium"><i class="fa-solid fa-store mr-1"></i>中心广场店</span>
                                     </div>
                                     <span class="text-[10px] text-slate-400">18:30</span>
@@ -365,10 +322,9 @@
                         <!-- Timeline Item 2 -->
                         <div class="relative pl-6">
                             <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)] border border-[#0B0F19]"></div>
-                            <div class="bg-white/5 rounded-lg p-3 border border-yellow-500/30 hover:bg-white/10 transition-colors cursor-pointer">
+                            <div onclick="showSessionDetails('session-risk-002')" class="bg-white/5 rounded-lg p-3 border border-yellow-500/30 hover:bg-white/10 transition-colors cursor-pointer active:scale-95 transform transition-transform">
                                 <div class="flex justify-between items-start mb-1">
                                     <div class="flex items-center space-x-2">
-                                        <span class="bg-yellow-500/20 text-yellow-500 text-[10px] px-1.5 py-0.5 rounded font-medium">中风险</span>
                                         <span class="text-[10px] text-neon-blue font-medium"><i class="fa-solid fa-store mr-1"></i>滨江路分店</span>
                                     </div>
                                     <span class="text-[10px] text-slate-400">14:15</span>
@@ -383,10 +339,9 @@
                          <!-- Timeline Item 3 -->
                          <div class="relative pl-6">
                             <div class="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-neon-blue shadow-[0_0_8px_rgba(0,240,255,0.5)] border border-[#0B0F19]"></div>
-                            <div class="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+                            <div onclick="showSessionDetails('session-risk-003')" class="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer active:scale-95 transform transition-transform">
                                 <div class="flex justify-between items-start mb-1">
                                     <div class="flex items-center space-x-2">
-                                        <span class="bg-neon-blue/20 text-neon-blue text-[10px] px-1.5 py-0.5 rounded font-medium">低风险</span>
                                         <span class="text-[10px] text-neon-blue font-medium"><i class="fa-solid fa-store mr-1"></i>火车站店</span>
                                     </div>
                                     <span class="text-[10px] text-slate-400">10:42</span>
@@ -524,19 +479,21 @@
             </section>
 
             <!-- Tab Panel -->
-            <section class="flex flex-col h-full">
+            <section class="flex flex-col">
                 <!-- Tab Headers -->
-                <div class="flex border-b border-white/10 mb-4 sticky top-0 bg-[#0B0F19] z-10 pt-2">
-                    <button onclick="switchStoreTab('general')" id="tab-store-general" class="flex-1 py-3 text-center text-sm font-bold text-neon-blue border-b-2 border-neon-blue transition-all">
+                <div class="flex border-b border-white/10 mb-4 bg-slate-800/30 rounded-t-xl overflow-hidden">
+                    <button onclick="switchStoreTab('general')" id="tab-store-general" class="flex-1 py-3 text-center text-xs font-bold text-neon-blue border-b-2 border-neon-blue bg-white/5 transition-all">
                         综合信息
                     </button>
-                    <button onclick="switchStoreTab('sentiment')" id="tab-store-sentiment" class="flex-1 py-3 text-center text-sm font-bold text-slate-400 hover:text-white transition-all">
+                    <button onclick="switchStoreTab('sentiment')" id="tab-store-sentiment" class="flex-1 py-3 text-center text-xs font-bold text-slate-400 hover:text-white border-b-2 border-transparent transition-all">
                         门店舆情
                     </button>
                 </div>
 
-                <!-- Tab 1: Comprehensive Info (General) -->
-                <div id="panel-store-general" class="space-y-4 pb-4 animate-fade-in">
+                <!-- Tab Content Container -->
+                <div class="glass-panel rounded-b-xl p-4 border border-white/5 min-h-[250px]">
+                    <!-- Tab 1: Comprehensive Info (General) -->
+                    <div id="panel-store-general" class="space-y-4 pb-4 animate-fade-in">
                     
                     <!-- 1. Hot Words -->
                     <div class="glass-panel rounded-xl p-4 border border-white/5">
@@ -741,6 +698,87 @@
                         </div>
                     </div>
                 </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Product Details Overlay (New) -->
+    <div id="product-details-view" class="fixed inset-0 bg-[#0B0F19] z-[70] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Header -->
+        <header class="glass-panel border-b border-white/5 px-4 py-3 flex items-center">
+            <button onclick="hideProductDetails()" class="mr-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h1 id="prod-detail-title" class="text-lg font-bold text-white tracking-wide">商品详情</h1>
+                <span id="prod-detail-tag" class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 mt-1 inline-block">--</span>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- 1. Key Metrics Cards -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="glass-panel p-2 rounded-lg text-center border border-white/5">
+                    <div id="metric-1-label" class="text-[10px] text-slate-400 mb-1">--</div>
+                    <div id="metric-1-value" class="text-lg font-bold text-white">--</div>
+                </div>
+                <div class="glass-panel p-2 rounded-lg text-center border border-white/5">
+                    <div id="metric-2-label" class="text-[10px] text-slate-400 mb-1">--</div>
+                    <div id="metric-2-value" class="text-lg font-bold text-white">--</div>
+                </div>
+                <div id="metric-3-card" class="glass-panel p-2 rounded-lg text-center border border-white/5">
+                    <div id="metric-3-label" class="text-[10px] text-slate-400 mb-1">--</div>
+                    <div id="metric-3-value" class="text-lg font-bold text-white">--</div>
+                </div>
+            </div>
+
+            <!-- 2. Attribution (Hard-to-sell only) -->
+            <section id="attribution-section" class="glass-panel rounded-xl p-4 border border-white/5 hidden">
+                <h2 class="text-sm font-bold text-white border-l-4 border-yellow-500 pl-2 mb-3">拒绝原因分布</h2>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-200">嫌贵/比价</span>
+                            <span class="text-white font-bold">45%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-yellow-500 h-full rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-200">疗效存疑</span>
+                            <span class="text-white font-bold">30%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-neon-red h-full rounded-full" style="width: 30%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-200">已有库存</span>
+                            <span class="text-white font-bold">25%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-slate-500 h-full rounded-full" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Related Sessions -->
+            <section class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-sm font-bold text-white pl-2 border-l-4 border-slate-500">相关会话</h2>
+                    <span class="text-[10px] text-slate-500"><i class="fa-solid fa-arrow-down-wide-short mr-1"></i>按时间倒序</span>
+                </div>
+                
+                <div id="product-sessions-container" class="space-y-3">
+                    <!-- Dynamic Content will be rendered here -->
+                </div>
             </section>
         </div>
     </div>
@@ -772,76 +810,457 @@
                 </div>
                 <div class="text-right">
                     <div id="kw-detail-count" class="text-2xl font-bold text-neon-blue font-mono">--</div>
-                    <div id="kw-detail-change" class="text-xs text-neon-red">--</div>
+                    <!-- 移除较前日对比 -->
                 </div>
             </div>
 
-            <!-- 2. Related Sessions -->
+            <!-- 4. Related Sessions -->
             <section class="space-y-3">
                 <h2 class="text-sm font-bold text-white pl-2 border-l-4 border-neon-blue">相关会话</h2>
                 
-                <!-- Dialog 1 -->
+                <!-- Session 1 -->
                 <div class="glass-panel rounded-xl p-3 border border-white/5">
                     <div class="flex justify-between items-start mb-2">
                          <div>
-                            <div class="text-xs text-white font-bold mb-0.5">顾客购买感冒药咨询</div>
+                            <div class="text-xs text-white font-bold mb-0.5">感冒药咨询与推荐</div>
                             <div class="text-[10px] text-slate-400"><i class="fa-solid fa-store mr-1"></i>中心广场店 · 王小美</div>
                          </div>
-                         <span class="text-[10px] text-neon-purple bg-neon-purple/10 px-1.5 py-0.5 rounded">关联失败</span>
+                         <!-- 移除 TAG -->
                     </div>
                     <p class="text-xs text-slate-300 leading-relaxed mb-2">
                         "您好，买<span class="text-neon-blue font-bold">感冒</span>药是吧？这款快克效果不错... 需要顺便带盒维C增强免疫力吗？"
                         <br><span class="text-slate-500 italic">"不用了，就拿这个。"</span>
                     </p>
-                    <button class="text-[10px] text-white bg-white/10 px-2 py-1 rounded flex items-center w-fit hover:bg-white/20">
-                        <i class="fa-solid fa-play mr-1.5 text-[8px]"></i> 播放录音
+                    <button onclick="showSessionDetails('session-001')" class="text-[10px] text-white bg-white/10 px-3 py-1.5 rounded flex items-center w-fit hover:bg-neon-blue hover:text-black transition-colors">
+                        详情
                     </button>
                 </div>
 
-                <!-- Dialog 2 -->
+                <!-- Session 2 -->
                 <div class="glass-panel rounded-xl p-3 border border-white/5">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <div class="text-xs text-white font-bold mb-0.5">流感症状咨询</div>
                             <div class="text-[10px] text-slate-400"><i class="fa-solid fa-store mr-1"></i>滨江路分店 · 李建国</div>
                         </div>
-                        <span class="text-[10px] text-neon-green bg-neon-green/10 px-1.5 py-0.5 rounded">咨询场景</span>
+                         <!-- 移除 TAG -->
                     </div>
                     <p class="text-xs text-slate-300 leading-relaxed mb-2">
                         "最近<span class="text-neon-blue font-bold">感冒</span>的人特别多，主要是流感。您除了头痛还有发烧症状吗？"
                     </p>
-                    <button class="text-[10px] text-white bg-white/10 px-2 py-1 rounded flex items-center w-fit hover:bg-white/20">
-                        <i class="fa-solid fa-play mr-1.5 text-[8px]"></i> 播放录音
+                    <button onclick="showSessionDetails('session-002')" class="text-[10px] text-white bg-white/10 px-3 py-1.5 rounded flex items-center w-fit hover:bg-neon-blue hover:text-black transition-colors">
+                        详情
                     </button>
                 </div>
             </section>
         </div>
     </div>
 
+    <!-- Session Details Overlay (New) -->
+    <div id="session-details-view" class="fixed inset-0 bg-[#0B0F19] z-[80] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Header -->
+        <header class="glass-panel border-b border-white/5 px-4 py-3 flex items-center shrink-0">
+            <button onclick="hideSessionDetails()" class="mr-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-wide">会话详情</h1>
+            </div>
+        </header>
+
+        <!-- Content (Scrollable with padding for footer) -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-32">
+            
+            <!-- 1. Title & Meta -->
+            <section>
+                <h2 class="text-xl font-bold text-white mb-2 leading-tight">感冒药咨询与推荐</h2>
+                <div class="flex items-center text-xs text-slate-400 space-x-3 mb-3">
+                    <span><i class="fa-regular fa-clock mr-1"></i>2026-01-11 14:30</span>
+                    <span><i class="fa-solid fa-store mr-1"></i>中心广场店</span>
+                    <span><i class="fa-regular fa-user mr-1"></i>王小美</span>
+                </div>
+                
+                <!-- Summary Card -->
+                <div class="bg-white/5 rounded-lg p-3 border-l-2 border-neon-blue">
+                    <p class="text-xs text-slate-300 leading-relaxed line-clamp-2">
+                        <span class="text-neon-blue font-bold mr-1">AI总结:</span>
+                        顾客主诉头痛流涕，店员准确识别症状并推荐快克，但未进行维C关联推荐，错失连带销售机会。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. Analysis Tags -->
+            <section class="flex space-x-2">
+                <span class="px-2 py-1 rounded bg-neon-purple/10 text-neon-purple text-xs border border-neon-purple/20">关联失败</span>
+                <span class="px-2 py-1 rounded bg-slate-700 text-slate-300 text-xs border border-white/10">咨询场景</span>
+            </section>
+
+            <!-- 3. Transcript -->
+            <section class="space-y-4">
+                <h3 class="text-sm font-bold text-white border-l-4 border-slate-500 pl-2 mb-4">对话详情</h3>
+                
+                <!-- Turn 1: Customer -->
+                <div class="flex space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-xs text-slate-300">客</div>
+                    <div class="bg-white/5 p-3 rounded-lg rounded-tl-none border border-white/5 max-w-[85%]">
+                        <p class="text-sm text-slate-200">你好，我想买点<span class="text-neon-blue font-bold">感冒</span>药。</p>
+                        <span class="text-[10px] text-slate-500 mt-1 block">00:05</span>
+                    </div>
+                </div>
+
+                <!-- Turn 2: Clerk -->
+                <div class="flex space-x-3 flex-row-reverse space-x-reverse">
+                    <div class="w-8 h-8 rounded-full bg-neon-blue/20 flex-shrink-0 flex items-center justify-center text-xs text-neon-blue font-bold">员</div>
+                    <div class="bg-neon-blue/10 p-3 rounded-lg rounded-tr-none border border-neon-blue/20 max-w-[85%]">
+                        <p class="text-sm text-slate-200">您好，是您自己吃吗？有什么具体症状？比如头痛、发烧或者流鼻涕？</p>
+                        <span class="text-[10px] text-slate-500 mt-1 block text-right">00:12</span>
+                    </div>
+                </div>
+
+                <!-- Turn 3: Customer -->
+                <div class="flex space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-xs text-slate-300">客</div>
+                    <div class="bg-white/5 p-3 rounded-lg rounded-tl-none border border-white/5 max-w-[85%]">
+                        <p class="text-sm text-slate-200">有点头痛，鼻子也不通气，应该是着凉了。</p>
+                        <span class="text-[10px] text-slate-500 mt-1 block">00:25</span>
+                    </div>
+                </div>
+
+                <!-- Turn 4: Clerk -->
+                <div class="flex space-x-3 flex-row-reverse space-x-reverse">
+                    <div class="w-8 h-8 rounded-full bg-neon-blue/20 flex-shrink-0 flex items-center justify-center text-xs text-neon-blue font-bold">员</div>
+                    <div class="bg-neon-blue/10 p-3 rounded-lg rounded-tr-none border border-neon-blue/20 max-w-[85%]">
+                        <p class="text-sm text-slate-200">那您可以试试这款快克，治感冒效果挺好的。最近流感比较多，您平时可以多喝水。</p>
+                        <span class="text-[10px] text-slate-500 mt-1 block text-right">00:35</span>
+                    </div>
+                </div>
+                
+                 <!-- Compliance Alert -->
+                 <div class="my-4 mx-8 py-2 border-t border-b border-neon-purple/30 text-center">
+                    <p class="text-xs text-neon-purple"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 检测到未关联推荐维C</p>
+                 </div>
+
+                <!-- Turn 5: Clerk -->
+                <div class="flex space-x-3 flex-row-reverse space-x-reverse">
+                    <div class="w-8 h-8 rounded-full bg-neon-blue/20 flex-shrink-0 flex items-center justify-center text-xs text-neon-blue font-bold">员</div>
+                    <div class="bg-neon-blue/10 p-3 rounded-lg rounded-tr-none border border-neon-blue/20 max-w-[85%]">
+                        <p class="text-sm text-slate-200">一共18元，扫这里。</p>
+                        <span class="text-[10px] text-slate-500 mt-1 block text-right">00:48</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Fixed Bottom Player -->
+        <div class="fixed bottom-0 w-full glass-panel border-t border-white/10 p-4 pb-safe z-[90]">
+            <!-- Waveform (Mini) -->
+            <div class="h-8 flex items-end space-x-0.5 mb-3 opacity-60">
+                <div class="w-1 bg-neon-blue h-[30%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[50%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[80%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[40%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[60%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[100%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[50%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[30%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[80%] rounded-full"></div>
+                <div class="w-1 bg-neon-blue h-[100%] rounded-full opacity-100 shadow-[0_0_5px_rgba(0,240,255,0.8)]"></div>
+                <div class="w-1 bg-slate-700 h-[60%] rounded-full"></div>
+                <div class="w-1 bg-slate-700 h-[40%] rounded-full"></div>
+                <div class="w-1 bg-slate-700 h-[20%] rounded-full flex-grow"></div> 
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] text-neon-blue font-mono">00:38 / 01:15</span>
+                
+                <div class="flex items-center space-x-6">
+                    <button class="text-slate-400 hover:text-white"><i class="fa-solid fa-backward-step"></i></button>
+                    <button class="w-10 h-10 rounded-full bg-neon-blue text-[#0B0F19] flex items-center justify-center hover:scale-105 transition-transform shadow-[0_0_10px_rgba(0,240,255,0.3)]">
+                        <i class="fa-solid fa-pause ml-0.5"></i>
+                    </button>
+                    <button class="text-slate-400 hover:text-white"><i class="fa-solid fa-forward-step"></i></button>
+                </div>
+
+                <button class="text-xs text-slate-300 bg-white/10 px-2 py-1 rounded font-mono w-12 text-center">x1.0</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 w-full glass-panel border-t border-white/10 pb-safe pt-2 z-50">
         <div class="flex justify-around items-center h-14">
-            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4">
+            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/2">
                 <i class="fa-solid fa-chart-pie text-neon-blue text-lg shadow-neon-blue"></i>
                 <span class="text-[10px] text-neon-blue font-medium">经营概览</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4 text-slate-500 hover:text-white transition">
-                <i class="fa-solid fa-shield-halved text-lg"></i>
-                <span class="text-[10px]">合规风控</span>
-            </a>
-            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4 text-slate-500 hover:text-white transition">
-                <i class="fa-solid fa-list-ol text-lg"></i>
-                <span class="text-[10px]">门店排行</span>
-            </a>
-            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/4 text-slate-500 hover:text-white transition">
+            <a href="#" class="flex flex-col items-center justify-center space-y-1 w-1/2 text-slate-500 hover:text-white transition">
                 <i class="fa-solid fa-user-gear text-lg"></i>
                 <span class="text-[10px]">我的</span>
             </a>
         </div>
     </nav>
 
+    <!-- Add Metric Modal -->
+    <div id="add-metric-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-sm rounded-xl border border-white/10 flex flex-col max-h-[80vh]">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                <h3 class="text-white font-bold">添加监控指标</h3>
+                <button onclick="closeAddMetricModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-4 overflow-y-auto space-y-3">
+                <!-- Mock Available Metrics -->
+                <div onclick="addMetricToHome('会员卡办理率')" class="p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer flex justify-between items-center group">
+                    <div>
+                        <div class="text-sm text-white font-medium">会员卡办理率</div>
+                        <div class="text-[10px] text-slate-400">当前: 32% (↓ 1.2%)</div>
+                    </div>
+                    <i class="fa-solid fa-plus text-neon-blue opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+                <div onclick="addMetricToHome('关联销售成功率')" class="p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer flex justify-between items-center group">
+                    <div>
+                        <div class="text-sm text-white font-medium">关联销售成功率</div>
+                        <div class="text-[10px] text-slate-400">当前: 15% (↑ 0.5%)</div>
+                    </div>
+                    <i class="fa-solid fa-plus text-neon-blue opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+                <div onclick="addMetricToHome('平均客单价')" class="p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer flex justify-between items-center group">
+                    <div>
+                        <div class="text-sm text-white font-medium">平均客单价</div>
+                        <div class="text-[10px] text-slate-400">当前: ¥45.2 (↑ ¥2.1)</div>
+                    </div>
+                    <i class="fa-solid fa-plus text-neon-blue opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+                <div onclick="addMetricToHome('新品推广率')" class="p-3 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer flex justify-between items-center group">
+                    <div>
+                        <div class="text-sm text-white font-medium">新品推广率</div>
+                        <div class="text-[10px] text-slate-400">当前: 8% (↓ 0.3%)</div>
+                    </div>
+                    <i class="fa-solid fa-plus text-neon-blue opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Metrics Modal -->
+    <div id="manage-metrics-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="glass-panel w-full max-w-sm rounded-xl border border-white/10 flex flex-col max-h-[80vh]">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                <h3 class="text-white font-bold">管理首页指标</h3>
+                <button onclick="closeManageMetricsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-check"></i></button>
+            </div>
+            <div id="manage-list-container" class="p-4 overflow-y-auto space-y-2">
+                <!-- Rendered by JS -->
+            </div>
+            <div class="p-4 border-t border-white/10 text-center text-xs text-slate-500">
+                拖拽排序功能暂未开放，请使用 ↑ ↓ 按钮
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts for Charts -->
     <script>
+        // --- Metrics Data & Management ---
+        let metricsData = [
+            { 
+                id: 'm1',
+                title: '客流量', 
+                subtitle: '昨日接待客流',
+                value: '1,245', 
+                changeAbs: '+120', 
+                changeRel: '+10.6%', 
+                isUp: true, 
+                color: 'neon-blue', 
+                canDelete: false 
+            },
+            { 
+                id: 'm2',
+                title: '合规率', 
+                subtitle: '昨日合规率',
+                value: '88.4%', 
+                changeAbs: '-2.1%', 
+                changeRel: '-2.3%', 
+                isUp: false, 
+                color: 'neon-purple', 
+                canDelete: true 
+            }
+        ];
+
+        // Mock data for new additions
+        const availableMetricsPool = {
+            '会员卡办理率': { subtitle: '昨日办卡率', value: '32%', changeAbs: '-1.2%', changeRel: '-3.6%', isUp: false, color: 'neon-green', canDelete: true },
+            '关联销售成功率': { subtitle: '昨日关联成功率', value: '15%', changeAbs: '+0.5%', changeRel: '+3.4%', isUp: true, color: 'yellow-500', canDelete: true },
+            '平均客单价': { subtitle: '昨日客单价', value: '¥45.2', changeAbs: '+¥2.1', changeRel: '+4.8%', isUp: true, color: 'neon-red', canDelete: true },
+            '新品推广率': { subtitle: '昨日新品推广', value: '8%', changeAbs: '-0.3%', changeRel: '-3.6%', isUp: false, color: 'neon-blue', canDelete: true }
+        };
+
+        function renderMetrics() {
+            const container = document.getElementById('metrics-scroll-container');
+            container.innerHTML = '';
+
+            // 1. Render Metrics Cards
+            metricsData.forEach(m => {
+                const iconClass = m.isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+                const trendColor = m.isUp ? 'text-neon-red' : 'text-neon-green';
+                const shadowColor = m.color === 'neon-blue' ? 'group-hover:bg-neon-blue/30' : 
+                                   (m.color === 'neon-purple' ? 'group-hover:bg-neon-purple/30' : 
+                                   (m.color === 'neon-green' ? 'group-hover:bg-neon-green/30' : 
+                                   (m.color === 'neon-red' ? 'group-hover:bg-neon-red/30' : 'group-hover:bg-yellow-500/30')));
+                const bgColor = m.color === 'neon-blue' ? 'bg-neon-blue/20' : 
+                               (m.color === 'neon-purple' ? 'bg-neon-purple/20' : 
+                               (m.color === 'neon-green' ? 'bg-neon-green/20' : 
+                               (m.color === 'neon-red' ? 'bg-neon-red/20' : 'bg-yellow-500/20')));
+
+                const html = `
+                    <div onclick="showMetricDetails('${m.title}', '${m.value}', '${m.changeAbs}', '${m.changeRel}', ${m.isUp})" 
+                         class="flex-shrink-0 w-[45%] glass-panel p-4 rounded-xl relative overflow-hidden group cursor-pointer active:scale-95 transition-transform whitespace-normal snap-start">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 ${bgColor} rounded-full blur-xl ${shadowColor} transition-all"></div>
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="text-slate-400 text-xs">${m.subtitle}</span>
+                        </div>
+                        <div class="text-2xl font-bold text-white mb-1">${m.value}</div>
+                        <div class="text-xs ${trendColor} flex items-center">
+                            <i class="fa-solid ${iconClass} mr-1"></i> ${m.changeAbs} <span class="text-[10px] ml-1 opacity-80">(${m.changeRel})</span>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            // 2. Render Action Buttons (Add & Manage)
+            const actionsHtml = `
+            <div class="flex flex-col space-y-3 flex-shrink-0 w-[15%] min-w-[60px] snap-start">
+                 <!-- Add Button -->
+                 <button onclick="openAddMetricModal()" class="flex-1 glass-panel rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white active:scale-95 transition-all border border-dashed border-white/20 hover:border-neon-blue/50 hover:bg-neon-blue/5">
+                    <i class="fa-solid fa-plus text-lg mb-1"></i>
+                    <span class="text-[10px]">新增</span>
+                 </button>
+                 <!-- Manage Button -->
+                 <button onclick="openManageMetricsMode()" class="flex-1 glass-panel rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white active:scale-95 transition-all border border-dashed border-white/20 hover:border-neon-purple/50 hover:bg-neon-purple/5">
+                    <i class="fa-solid fa-sliders text-lg mb-1"></i>
+                    <span class="text-[10px]">管理</span>
+                 </button>
+            </div>
+            `;
+            container.insertAdjacentHTML('beforeend', actionsHtml);
+        }
+
+        function openAddMetricModal() {
+            document.getElementById('add-metric-modal').classList.remove('hidden');
+        }
+
+        function closeAddMetricModal() {
+            document.getElementById('add-metric-modal').classList.add('hidden');
+        }
+
+        function addMetricToHome(metricName) {
+            // Check if already exists
+            if (metricsData.find(m => m.title === metricName)) {
+                alert('该指标已存在');
+                return;
+            }
+
+            const mockData = availableMetricsPool[metricName];
+            if (mockData) {
+                metricsData.push({
+                    id: 'm' + Date.now(),
+                    title: metricName,
+                    ...mockData
+                });
+                renderMetrics();
+                closeAddMetricModal();
+                
+                // Scroll to end
+                setTimeout(() => {
+                    const container = document.getElementById('metrics-scroll-container');
+                    container.scrollLeft = container.scrollWidth;
+                }, 100);
+            }
+        }
+
+        function openManageMetricsMode() {
+            renderManageList();
+            document.getElementById('manage-metrics-modal').classList.remove('hidden');
+        }
+
+        function closeManageMetricsModal() {
+            document.getElementById('manage-metrics-modal').classList.add('hidden');
+        }
+
+        function renderManageList() {
+            const container = document.getElementById('manage-list-container');
+            container.innerHTML = '';
+            
+            metricsData.forEach((m, index) => {
+                const isFirst = index === 0;
+                const isLast = index === metricsData.length - 1;
+                
+                const deleteBtn = m.canDelete 
+                    ? `<button onclick="deleteMetric('${index}')" class="w-8 h-8 rounded bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>`
+                    : `<div class="w-8 h-8 flex items-center justify-center text-slate-600 cursor-not-allowed"><i class="fa-solid fa-lock text-xs"></i></div>`;
+
+                const editBtn = `<button onclick="editMetric('${index}')" class="w-8 h-8 rounded bg-white/5 text-slate-400 hover:bg-neon-blue/20 hover:text-neon-blue transition-colors flex items-center justify-center mr-2"><i class="fa-solid fa-pen text-xs"></i></button>`;
+
+                const upBtn = !isFirst
+                    ? `<button onclick="moveMetric(${index}, -1)" class="w-6 h-6 rounded hover:bg-white/10 text-slate-400 hover:text-white"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>`
+                    : `<div class="w-6 h-6"></div>`;
+                
+                const downBtn = !isLast
+                    ? `<button onclick="moveMetric(${index}, 1)" class="w-6 h-6 rounded hover:bg-white/10 text-slate-400 hover:text-white"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>`
+                    : `<div class="w-6 h-6"></div>`;
+
+                const html = `
+                    <div class="flex items-center justify-between p-3 glass-panel border border-white/5 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex flex-col justify-center">
+                                ${upBtn}
+                                ${downBtn}
+                            </div>
+                            <div>
+                                <div class="text-sm text-white font-medium">${m.title}</div>
+                                <div class="text-[10px] text-slate-500">${m.subtitle}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            ${editBtn}
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function editMetric(index) {
+            const m = metricsData[index];
+            const newTitle = prompt('编辑指标名称:', m.title);
+            if (newTitle && newTitle !== m.title) {
+                metricsData[index].title = newTitle;
+                renderMetrics();
+                renderManageList();
+            }
+        }
+
+        function deleteMetric(index) {
+            if (confirm('确定要移除该指标吗？')) {
+                metricsData.splice(index, 1);
+                renderMetrics();
+                renderManageList();
+            }
+        }
+
+        function moveMetric(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < metricsData.length) {
+                // Swap
+                const temp = metricsData[index];
+                metricsData[index] = metricsData[newIndex];
+                metricsData[newIndex] = temp;
+                
+                renderMetrics();
+                renderManageList();
+            }
+        }
+
         // Common Chart Config
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
@@ -1011,11 +1430,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initTrafficChart();
-            renderStoreList();
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
+            renderMetrics();
             initTrafficChart();
             renderStoreList();
         });
@@ -1170,16 +1585,16 @@
             const panelGeneral = document.getElementById('panel-store-general');
             const panelSentiment = document.getElementById('panel-store-sentiment');
 
-            const activeBtnClasses = ['text-neon-blue', 'border-neon-blue'];
-            const inactiveBtnClasses = ['text-slate-400', 'hover:text-white', 'border-transparent']; // Add transparent border to avoid jumping if needed, or just remove border-neon-blue
+            const activeBtnClasses = ['text-neon-blue', 'border-neon-blue', 'bg-white/5'];
+            const inactiveBtnClasses = ['text-slate-400', 'hover:text-white', 'border-transparent'];
 
             if (tab === 'general') {
                 // Activate General
                 btnGeneral.classList.add(...activeBtnClasses);
-                btnGeneral.classList.remove('text-slate-400', 'hover:text-white');
+                btnGeneral.classList.remove(...inactiveBtnClasses);
                 
                 btnSentiment.classList.remove(...activeBtnClasses);
-                btnSentiment.classList.add('text-slate-400', 'hover:text-white');
+                btnSentiment.classList.add(...inactiveBtnClasses);
 
                 // Show Panel
                 panelGeneral.classList.remove('hidden');
@@ -1187,10 +1602,10 @@
             } else {
                 // Activate Sentiment
                 btnSentiment.classList.add(...activeBtnClasses);
-                btnSentiment.classList.remove('text-slate-400', 'hover:text-white');
+                btnSentiment.classList.remove(...inactiveBtnClasses);
 
                 btnGeneral.classList.remove(...activeBtnClasses);
-                btnGeneral.classList.add('text-slate-400', 'hover:text-white');
+                btnGeneral.classList.add(...inactiveBtnClasses);
 
                 // Show Panel
                 panelSentiment.classList.remove('hidden');
@@ -1222,6 +1637,138 @@
                 }, 300);
             };
         }
+        // --- Product Details Logic ---
+        
+        // Mock Session Data
+        const productSessionsData = [
+            {
+                id: 'session-stock-001',
+                type: 'stockout',
+                title: '儿童退热贴咨询',
+                store: '中心广场店',
+                clerk: '王小美',
+                time: '2026-01-11 19:42',
+                content: '"请问有没有<span class=\\"text-neon-blue font-bold\\">儿童退热贴</span>？家里小孩发烧了。"',
+                highlight: '儿童退热贴'
+            },
+            {
+                id: 'session-stock-002',
+                type: 'stockout',
+                title: '退烧药缺货登记',
+                store: '滨江路分店',
+                clerk: '李建国',
+                time: '2026-01-11 14:15',
+                content: '"这种<span class=\\"text-neon-blue font-bold\\">退热贴</span>还没到货吗？昨天来就没有。"',
+                highlight: '退热贴'
+            },
+             {
+                id: 'session-hard-001',
+                type: 'hard',
+                title: '高钙片关联推荐',
+                store: '天河体育西店',
+                clerk: '陈阿姨',
+                time: '2026-01-11 10:30',
+                content: '"买给老人的话，搭配这个<span class=\\"text-yellow-500 font-bold\\">高钙片</span>效果更好... (顾客摆手拒绝)"',
+                highlight: '高钙片'
+            },
+            {
+                id: 'session-hard-002',
+                type: 'hard',
+                title: '营养品推销',
+                store: '越秀公园店',
+                clerk: '刘强',
+                time: '2026-01-11 16:20',
+                content: '"现在活动买二送一，<span class=\\"text-yellow-500 font-bold\\">西洋参</span>很划算的... (顾客表示太贵)"',
+                highlight: '西洋参'
+            }
+        ];
+
+        function renderProductSessions(type) {
+            const container = document.getElementById('product-sessions-container');
+            container.innerHTML = '';
+            
+            // Filter and Sort by Time Descending
+            const sessions = productSessionsData
+                .filter(s => s.type === type)
+                .sort((a, b) => new Date(a.time) < new Date(b.time) ? 1 : -1);
+
+            sessions.forEach(session => {
+                const html = `
+                <div class="glass-panel rounded-xl p-3 border border-white/5">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="text-xs text-white font-bold mb-0.5">${session.title}</div>
+                            <div class="text-[10px] text-slate-400 flex items-center space-x-2">
+                                <span><i class="fa-solid fa-store mr-1"></i>${session.store} · ${session.clerk}</span>
+                                <span class="text-slate-500">|</span>
+                                <span class="text-neon-blue"><i class="fa-regular fa-clock mr-1"></i>${session.time.split(' ')[1]}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-2">
+                        ${session.content}
+                    </p>
+                    <button onclick="showSessionDetails('${session.id}')" class="text-[10px] text-white bg-white/10 px-3 py-1.5 rounded flex items-center w-fit hover:bg-neon-blue hover:text-black transition-colors">
+                        详情
+                    </button>
+                </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function showProductDetails(name, type) {
+            document.getElementById('prod-detail-title').innerText = name;
+            const tagEl = document.getElementById('prod-detail-tag');
+            const attrSection = document.getElementById('attribution-section');
+            const m3Card = document.getElementById('metric-3-card');
+            
+            // Metrics Elements
+            const m1L = document.getElementById('metric-1-label');
+            const m1V = document.getElementById('metric-1-value');
+            const m2L = document.getElementById('metric-2-label');
+            const m2V = document.getElementById('metric-2-value');
+            const m3L = document.getElementById('metric-3-label');
+            const m3V = document.getElementById('metric-3-value');
+
+            if (type === 'stockout') {
+                // Stockout View
+                tagEl.innerText = '缺货预警';
+                tagEl.className = 'text-xs px-2 py-0.5 rounded bg-neon-red/10 text-neon-red mt-1 inline-block border border-neon-red/20';
+                
+                m1L.innerText = '昨日询问'; m1V.innerText = '42次';
+                m2L.innerText = '涉及门店'; m2V.innerText = '12家';
+                
+                // Hide metric 3 for stockout
+                m3Card.classList.add('hidden');
+                
+                attrSection.classList.add('hidden');
+
+            } else {
+                // Hard-to-sell View
+                tagEl.innerText = '难推预警';
+                tagEl.className = 'text-xs px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-500 mt-1 inline-block border border-yellow-500/20';
+
+                m1L.innerText = '关联失败率'; m1V.innerText = '85%';
+                m2L.innerText = '推荐次数'; m2V.innerText = '128次';
+                
+                // Show metric 3 for hard-to-sell
+                m3Card.classList.remove('hidden');
+                m3L.innerText = '成功次数'; m3V.innerText = '19次';
+
+                attrSection.classList.remove('hidden');
+            }
+
+            // Render Related Sessions (Sorted by Time)
+            renderProductSessions(type);
+
+            document.getElementById('product-details-view').classList.remove('translate-x-full');
+        }
+
+        function hideProductDetails() {
+            document.getElementById('product-details-view').classList.add('translate-x-full');
+        }
+
         // --- Keyword Details Logic ---
         let keywordChartInstance = null;
 
@@ -1231,22 +1778,27 @@
             document.getElementById('kw-detail-tag').innerText = tag;
             document.getElementById('kw-detail-count').innerText = count;
             
-            const changeEl = document.getElementById('kw-detail-change');
-            const icon = isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
-            const color = isUp ? 'text-neon-red' : 'text-neon-green';
-            const sign = isUp ? '+' : '';
-            changeEl.className = `text-xs ${color}`;
-            changeEl.innerHTML = `<i class="fa-solid ${icon} mr-1"></i> ${sign}${change}% 较前日`;
-
+            // Note: The comparison logic has been removed from the UI
+            
             // Show View
             document.getElementById('keyword-details-view').classList.remove('translate-x-full');
-            
-            // Init Chart (Delayed to allow layout)
-            // setTimeout(initKeywordChart, 300);
         }
 
         function hideKeywordDetails() {
             document.getElementById('keyword-details-view').classList.add('translate-x-full');
+        }
+
+        // --- Session Details Logic ---
+        function showSessionDetails(sessionId) {
+            // In a real application, we would fetch session data by ID.
+            // For this prototype, we just show the static view.
+            const view = document.getElementById('session-details-view');
+            view.classList.remove('translate-x-full');
+            // We need to ensure it's on top of other layers if needed, though z-80 handles it relative to z-70 (keyword details)
+        }
+
+        function hideSessionDetails() {
+            document.getElementById('session-details-view').classList.add('translate-x-full');
         }
 
         /*
